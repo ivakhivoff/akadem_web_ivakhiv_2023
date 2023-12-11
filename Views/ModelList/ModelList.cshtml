@@ -1,0 +1,314 @@
+﻿@using KursovaWorkBLL.Services.AdditionalServices;
+@using Microsoft.IdentityModel.Tokens
+
+@{
+    ViewBag.Title = "Моделі";
+    ViewBagHelper.SetIsLoggedInInViewBag(ViewContext);
+}
+
+@model FilterViewModel
+
+<div class="modelBody">
+    <div class="filters border-bottom">
+        <div class="mb-2 d-flex flex-column">
+            <div>
+                <div class="d-flex flex-row justify-content-between">
+                    <div class="dropdown">
+                        <button class="btn btn-primary btn-sm dropdown-toggle" id="sortDropdownButton" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Виберіть сортування
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-relocate" aria-labelledby="sortDropdownButton">
+                            <ul class="dropdown-container">
+                                <li class="dropdown-item" role="button">
+                                    <a class="dropdown-item" asp-controller="ModelList" asp-action="SortByAlphabet" id="SortByAlphabet">По алфавіту</a>
+                                </li>
+                                <li class="dropdown-item " role="button">
+                                    <a class="dropdown-item" asp-controller="ModelList" asp-action="SortByPrice" asp-route-param1="cheap" id="SortByPriceCheap">Від дешевих до дорогих</a>
+                                </li>
+                                <li class="dropdown-item" role="button">
+                                    <a class="dropdown-item" asp-controller="ModelList" asp-action="SortByPrice" asp-route-param1="expensive" id="SortByPriceExpensive">Від дорогих до дешевих</a>
+                                </li>
+                                <li class="dropdown-item" role="button">
+                                    <a class="dropdown-item" asp-controller="ModelList" asp-action="SortByNovelty" id="SortByNovelty">Новинки</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button type="button" id="filterButton" class="btn btn-primary btn-sm mb-1" data-toggle="modal" data-target="#filterModal">
+                        <i class="fas fa-chevron-right me-1"></i>Показати фільтри
+                    </button>
+                </div>
+
+                <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="filterModalLabel">Меню фільтрів</h5>
+                                <a id="closeCrest" class="close text-decoration-none close-custom text-black cursor" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </a>
+                            </div>
+                            <div class="modal-body d-flex flex-column justify-content-between">
+                                <form asp-controller="ModelList" asp-action="ApplyFilters" id="filterForm" method="get">
+                                    <div class="mb-2">
+                                        <h6>Ціна:</h6>
+                                        <div class="form-group">
+                                            <label for="priceFrom">Від:</label>
+                                            <input type="number" class="form-control" id="priceFrom" name="PriceFrom" value="@Model.PriceFrom">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="priceTo">До:</label>
+                                            <input type="number" class="form-control" id="priceTo" name="PriceTo" value="@Model.PriceTo">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <h6>Рік виробництва:</h6>
+                                        <div class="form-group">
+                                            <label for="yearFrom">Від:</label>
+                                            <input type="number" class="form-control" id="yearFrom" name="YearFrom" value="@Model.YearFrom">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="yearTo">До:</label>
+                                            <input type="number" class="form-control" id="yearTo" name="YearTo" value="@Model.YearTo">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <h6>Тип палива:</h6>
+                                        <div class="form-check">
+                                            <input class="form-check-input cursor" type="checkbox" name="SelectedFuelTypes" id="gasoline" value="Бензин" @if (!Model.SelectedFuelTypes.IsNullOrEmpty())
+                                                                                                                                                         {
+                                                                                                                                                             @(Model.SelectedFuelTypes.Contains("Бензин") ? "checked" : "")
+                                                                                                                                                         }>
+                                            <label class="form-check-label cursor" for="gasoline">Бензин</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input cursor" type="checkbox" name="SelectedFuelTypes" id="diesel" value="Дизель" @if (!Model.SelectedFuelTypes.IsNullOrEmpty())
+                                                                                                                                                       {
+                                                                                                                                                           @(Model.SelectedFuelTypes.Contains("Дизель") ? "checked" : "")
+                                                                                                                                                       }>
+                                            <label class="form-check-label cursor" for="diesel">Дизель</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input cursor" type="checkbox" name="SelectedFuelTypes" id="electric" value="Електричний" @if (!Model.SelectedFuelTypes.IsNullOrEmpty())
+                                                                                                                                                              {
+                                                                                                                                                                  @(Model.SelectedFuelTypes.Contains("Електричний") ? "checked" : "")
+                                                                                                                                                              }>
+                                            <label class="form-check-label cursor" for="electric">Електричний</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input cursor" type="checkbox" name="SelectedFuelTypes" id="hybrid" value="Гибрид" @if (!Model.SelectedFuelTypes.IsNullOrEmpty())
+                                                                                                                                                       {
+                                                                                                                                                           @(Model.SelectedFuelTypes.Contains("Гибрид") ? "checked" : "")
+                                                                                                                                                       }>
+                                            <label class="form-check-label cursor" for="hybrid">Гибрид</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <h6>
+                                            Тип коробки передач:
+                                        </h6>
+                                        <div class="form-check">
+                                            <input class="form-check-input cursor" type="checkbox" name="SelectedTransmissionTypes" id="automatic" value="Автоматична" @if (!Model.SelectedTransmissionTypes.IsNullOrEmpty())
+                                                                                                                                                                       {
+                                                                                                                                                                           @(Model.SelectedTransmissionTypes.Contains("Автоматична") ? "checked" : "")
+                                                                                                                                                                       }>
+                                            <label class="form-check-label cursor" for="automatic">Автоматична</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input cursor" type="checkbox" name="SelectedTransmissionTypes" id="robotic" value="Роботична" @if (!Model.SelectedTransmissionTypes.IsNullOrEmpty())
+                                                                                                                                                                   {
+                                                                                                                                                                       @(Model.SelectedTransmissionTypes.Contains("Роботична") ? "checked" : "")
+                                                                                                                                                                   }>
+                                            <label class="form-check-label cursor" for="robotic">Роботична</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input cursor" type="checkbox" name="SelectedTransmissionTypes" id="mechanic" value="Механічна" @if (!Model.SelectedTransmissionTypes.IsNullOrEmpty())
+                                                                                                                                                                    {
+                                                                                                                                                                        @(Model.SelectedTransmissionTypes.Contains("Механічна") ? "checked" : "")
+                                                                                                                                                                    }>
+                                            <label class="form-check-label cursor" for="mechanic">Механічна</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <h6>
+                                            Марки:
+                                        </h6>
+                                        @foreach (var make in FilterViewModel.origCars.Select(x => x.Make).Distinct())
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input cursor" type="checkbox" name="SelectedMakes" id="@make" value="@make" @if (!Model.SelectedMakes.IsNullOrEmpty())
+                                                                                                                                                     {
+                                                                                                                                                         @(Model.SelectedMakes.Contains(@make) ? "checked" : "")
+                                                                                                                                                     }>
+                                                <label class="form-check-label cursor" for="@make">@make</label>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="close" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+                                        <button type="submit" class="btn btn-primary">Застосувати фільтри</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var filterModal = document.getElementById('filterModal');
+                        var filterButton = document.getElementById('filterButton');
+                        var close = document.getElementById('close');
+                        var closeCrest = document.getElementById('closeCrest');
+
+                        var options = {
+                            backdrop: 'static',
+                            keyboard: false
+                        };
+
+                        var modal = new bootstrap.Modal(filterModal, options);
+
+                        filterButton.addEventListener('click', function () {
+                            modal.show();
+                        });
+
+                        close.addEventListener('click', function () {
+                            modal.hide();
+                        });
+
+                        closeCrest.addEventListener('click', function () {
+                            modal.hide();
+                        });
+
+
+                        var transmission = document.querySelectorAll('input[name="SelectedTransmissionTypes"]');
+                        var fuel = document.querySelectorAll('input[name="SelectedFuelTypes"]');
+                        var makes = document.querySelectorAll('input[name="SelectedMakes"]');
+
+                        transmission.forEach(function (checkbox) {
+                            checkbox.addEventListener('change', function () {
+                                transmission.forEach(function (otherCheckbox) {
+                                    if (otherCheckbox !== checkbox) {
+                                        otherCheckbox.checked = false;
+                                    }
+                                });
+                            });
+                        });
+
+                        fuel.forEach(function (checkbox) {
+                            checkbox.addEventListener('change', function () {
+                                fuel.forEach(function (otherCheckbox) {
+                                    if (otherCheckbox !== checkbox) {
+                                        otherCheckbox.checked = false;
+                                    }
+                                });
+                            });
+                        });
+
+                        makes.forEach(function (checkbox) {
+                            checkbox.addEventListener('change', function () {
+                                makes.forEach(function (otherCheckbox) {
+                                    if (otherCheckbox !== checkbox) {
+                                        otherCheckbox.checked = false;
+                                    }
+                                });
+                            });
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="modelList mt-2">
+        <div class="container card-background">
+            <div class="row card-background">
+                @Html.Partial("~/Views/ModelList/_PartialModelList.cshtml", Model)
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("SortByAlphabet").addEventListener("click", function (event) {
+            event.preventDefault();
+            sortByAlphabet();
+        });
+
+        document.getElementById("SortByPriceCheap").addEventListener("click", function (event) {
+            event.preventDefault();
+            sortByPrice("cheap");
+        });
+
+        document.getElementById("SortByPriceExpensive").addEventListener("click", function (event) {
+            event.preventDefault();
+            sortByPrice("expensive");
+        });
+
+        document.getElementById("SortByNovelty").addEventListener("click", function (event) {
+            event.preventDefault();
+            sortByNovelty();
+        });
+
+        document.getElementById("filterForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            applyFilters();
+        });
+    });
+
+    function updateModelList(html) {
+        document.querySelector(".modelList .container .row").innerHTML = html;
+    }
+
+    function sortByAlphabet() {
+        fetch("/ModelList/SortByAlphabet", {
+                method: "GET"
+            })
+            .then(response => response.text())
+            .then(html => {
+                updateModelList(html);
+            })
+            .catch(error => console.log(error));
+    }
+
+    function sortByPrice(param1) {
+        fetch(`/ModelList/SortByPrice?param1=${param1}`, {
+                method: "GET"
+            })
+            .then(response => response.text())
+            .then(html => {
+                updateModelList(html);
+            })
+            .catch(error => console.log(error));
+    }
+
+    function sortByNovelty() {
+        fetch("/ModelList/SortByNovelty", {
+                method: "GET"
+            })
+            .then(response => response.text())
+            .then(html => {
+                updateModelList(html);
+            })
+            .catch(error => console.log(error));
+    }
+
+    function applyFilters() {
+        const form = document.getElementById("filterForm");
+        const formData = new FormData(form);
+
+        fetch("/ModelList/ApplyFilters", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                updateModelList(html);
+                document.getElementById('close').dispatchEvent(new Event("click"));
+            })
+            .catch(error => console.log(error));
+    }
+
+</script>
+
+@Html.Partial("_Footer")

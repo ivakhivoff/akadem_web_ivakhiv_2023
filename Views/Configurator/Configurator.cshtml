@@ -1,0 +1,161 @@
+﻿@using KursovaWorkDAL.Entity.Entities.Car;
+@using KursovaWorkBLL.Services.AdditionalServices;
+
+@model CarInfo;
+@{
+    ViewBag.Title = Model.Make + " " + Model.Model + " - Конфігуратор";
+    ViewBagHelper.SetIsLoggedInInViewBag(ViewContext);
+}
+
+<h2 class="mb-2">@Model.Make @Model.Model</h2>
+
+<div class="homepage-mainsection">
+    <div class="main-carousel autoplay">
+        @foreach(var image in Model.Images)
+        {
+            <div class="carousel-cell">
+                <img src="@image.ImageUrl"/>
+            </div>
+        }
+
+    </div>
+</div>
+
+<div class="carBody d-flex flex-column">
+    <form asp-action="Submit" asp-controller="Configurator" method="post" id="configuratorForm">
+        <div class="form-group">
+            <h4>Колір</h4>
+            <div class="radio-buttons flex-row justify-content-between">
+                <label class="cursor">
+                    <input type="radio" name="color" value="Червоний">
+                    <span class="radio-button bg-red"></span>
+                    Червоний
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="color" value="Синій">
+                    <span class="radio-button bg-blue"></span>
+                    Синій
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="color" value="Чорний">
+                    <span class="radio-button bg-black"></span>
+                    Чорний
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="color" value="Білий">
+                    <span class="radio-button bg-light"></span>
+                    Білий
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="color" value="Сріблястий">
+                    <span class="radio-button bg-silver"></span>
+                    Сріблястий
+                </label>
+            </div>
+            <p id="colorError" class="text-danger"></p>
+            
+        </div>
+
+        <div class="form-group">
+            <h4>Тип коробки передач</h4>
+            <div class="radio-buttons">
+                <label class="cursor">
+                    <input type="radio" name="transmission" value="Механічна">
+                    <span class="radio-button"></span>
+                    Механічна
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="transmission" value="Автоматична">
+                    <span class="radio-button"></span>
+                    Автоматична
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="transmission" value="Роботична">
+                    <span class="radio-button"></span>
+                    Роботична
+                </label>
+            </div>
+            <p id="transmissionError" class="text-danger"></p>
+            
+        </div>
+
+        <div class="form-group">
+            <h4>Тип палива</h4>
+            <div class="radio-buttons">
+                <label class="cursor">
+                    <input type="radio" name="fuelType" value="Бензин">
+                    <span class="radio-button"></span>
+                    Бензин
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="fuelType" value="Дизель">
+                    <span class="radio-button"></span>
+                    Дизель
+                </label>
+                <label>
+                    <input type="radio" name="fuelType" value="Електричний">
+                    <span class="radio-button"></span>
+                    Електричний
+                </label>
+                <label class="cursor">
+                    <input type="radio" name="fuelType" value="Гибрид">
+                    <span class="radio-button"></span>
+                    Гибрид
+                </label>
+            </div>
+            <p id="fuelTypeError" class="text-danger"></p>
+            
+        </div>
+
+        <button id="submitButton" type="submit" class="btn btn-primary">Зберегти</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("configuratorForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            submitConfiguratorForm();
+        });
+    });
+
+    function submitConfiguratorForm() {
+        var form = document.getElementById("configuratorForm");
+        var formData = new FormData(form);
+
+        fetch(form.action, {
+                method: form.method,
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    if (data.errors) {
+                        if (data.errors.color) {
+                            document.getElementById("colorError").innerHTML = data.errors.color;
+                        } else {
+                            document.getElementById("colorError").innerHTML = "";
+                        }
+
+                        if (data.errors.transmission) {
+                            document.getElementById("transmissionError").innerHTML = data.errors.transmission;
+                        } else {
+                            document.getElementById("transmissionError").innerHTML = "";
+                        }
+
+                        if (data.errors.fuelType) {
+                            document.getElementById("fuelTypeError").innerHTML = data.errors.fuelType;
+                        } else {
+                            document.getElementById("fuelTypeError").innerHTML = "";
+                        }
+                    }
+                }
+            })
+            .catch(error => console.log(error));
+    }
+
+</script>
+
+@Html.Partial("_Footer")

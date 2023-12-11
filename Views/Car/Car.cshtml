@@ -1,0 +1,72 @@
+﻿@using KursovaWorkDAL.Entity.Entities.Car;
+@using KursovaWorkBLL.Services.AdditionalServices;
+
+@model CarInfo;
+@{
+    ViewBag.Title = Model.Make + " " + Model.Model;
+    ViewBagHelper.SetIsLoggedInInViewBag(ViewContext);
+}
+
+<h2 class="mb-2">@Model.Make @Model.Model</h2>
+
+<div class="homepage-mainsection">
+    <div class="main-carousel autoplay">
+        @foreach(var image in Model.Images)
+        {
+            <div class="carousel-cell">
+                <img src="@image.ImageUrl"/>
+            </div>
+        }
+
+    </div>
+</div>
+
+<div class="carBody d-flex flex-column">
+    <div class="d-flex flex-row gap-3">
+        <a class="btn" asp-action="Payment" asp-controller="Payment" asp-route-param1="@Model.Make" asp-route-param2="@Model.Model" asp-route-param3="@Model.Year">Замовити автомобіль</a>
+        <a class="btn" asp-action="Configurator" asp-controller="Configurator" asp-route-param1="@Model.Make" asp-route-param2="@Model.Model" asp-route-param3="@Model.Year">Сконфігурувати автомобіль</a>
+    </div>
+
+    <div class="car-info mt-3">
+        <h4>Опис</h4>
+        <p>@Model.Description</p>
+
+        <h4 class="mb-2">Загальні характеристики</h4>
+        <table class="table mt-2">
+            <thead>
+                <tr>
+                    <th>Тип характеристики</th>
+                    <th>Значення характеристики</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Рік</td>
+                    <td>@Model.Year</td>
+                </tr>
+
+                <tr>
+                    <td>Ціна</td>
+                    <td>@Model.Price грн.</td>
+                </tr>
+
+                <tr>
+                    <td>Колір</td>
+                    <td>@Model.Detail?.Color</td>
+                </tr>
+
+                <tr>
+                    <td>Тип коробки передач</td>
+                    <td>@Model.Detail?.Transmission</td>
+                </tr>
+
+                <tr>
+                    <td>Тип палива</td>
+                    <td>@Model.Detail?.FuelType</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@Html.Partial("_Footer")

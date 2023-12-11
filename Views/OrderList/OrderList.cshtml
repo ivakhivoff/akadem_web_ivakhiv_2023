@@ -1,0 +1,51 @@
+﻿@using KursovaWorkDAL.Entity.Entities;
+@using KursovaWorkBLL.Services.AdditionalServices;
+@{
+    ViewBagHelper.SetIsLoggedInInViewBag(ViewContext);
+    ViewBag.Title = "Список замовлень";
+}
+
+@model List<Order>
+
+@if (Model.Any())
+{
+    <div class="orderList">
+        <h2 class="mb-1">Мої Покупки</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID покупки</th>
+                    <th>Машина</th>
+                    <th>Рік випуску</th>
+                    <th>Колір машини</th>
+                    <th>Тип коробки</th>
+                    <th>Тип палива</th>
+                    <th>Ціна</th>
+                    <th>Дата замовлення</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>@order.Id</td>
+                        <td>@(order.Car != null ? $"{order.Car.Make} {order.Car.Model}" : "")</td>
+                        <td>@(order.Car != null ? order.Car.Year.ToString() : "")</td>
+                        <td>@(order.ConfiguratorOptions != null ? order.ConfiguratorOptions.Color : order.Car.Detail.Color)</td>
+                        <td>@(order.ConfiguratorOptions != null ? order.ConfiguratorOptions.Transmission : order.Car.Detail.Transmission)</td>
+                        <td>@(order.ConfiguratorOptions != null ? order.ConfiguratorOptions.FuelType : order.Car.Detail.FuelType)</td>
+                        <td>@order.Price грн.</td>
+                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
+else
+{
+    <p class="ordersNotFound fs-3">Замовлень не було знайдено.</p>
+}
+
+@Html.Partial("_Footer");
